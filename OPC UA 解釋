@@ -1,0 +1,218 @@
+Create your own namespace and then populate your server address space using use the get_root() or get_objects() to get Node objects. and get_event_object() to fire events. Then start server. See example_server.py All methods are threadsafe
+
+If you need more flexibility you call directly the Ua Service methods on the iserver or iserver.isession object members.
+
+During startup the standard address space will be constructed, which may be time-consuming when running a server on a less powerful device (e.g. a Raspberry Pi). In order to improve startup performance, a optional path to a cache file can be passed to the server constructor. If the parameter is defined, the address space will be loaded from the cache file or the file will be created if it does not exist yet. As a result the first startup will be even slower due to the cache file generation but all further start ups will be significantly faster.
+
+Variables:	
+product_uri (uri) –
+name (string) –
+default_timeout (InternalServer) – timeout in milliseconds for sessions and secure channel
+iserver – internal server object
+bserver (BinaryServer) – binary protocol server
+nodes (Shortcuts) – shortcuts to common nodes
+allow_remote_admin(allow)[source]
+Enable or disable the builtin Admin user from network clients
+
+create_custom_data_type(idx, name, basetype=24, properties=None)[source]
+create_custom_event_type(idx, name, basetype=2041, properties=None)[source]
+create_custom_object_type(idx, name, basetype=58, properties=None, variables=None, methods=None)[source]
+create_custom_variable_type(idx, name, basetype=62, properties=None, variables=None, methods=None)[source]
+create_subscription(period, handler)[source]
+Create a subscription. returns a Subscription object which allow to subscribe to events or data on server period is in milliseconds handler is a python object with following methods:
+
+def datachange_notification(self, node, val, data): def event_notification(self, event): def status_change_notification(self, status):
+dehistorize_node_data_change(node)[source]
+Stop historizing supplied nodes; see history module Args:
+
+node: node or list of nodes that can be historized (UA variables/properties)
+Returns:
+
+dehistorize_node_event(node)[source]
+Stop historizing events from node (typically a UA object); see history module Args:
+
+node: node or list of nodes that can be historized (UA objects)
+Returns:
+
+delete_nodes(nodes, recursive=False)[source]
+disable_clock(val=True)[source]
+for debugging you may want to disable clock that write every second to address space
+
+export_xml(nodes, path)[source]
+Export defined nodes to xml
+
+export_xml_by_ns(path, namespaces=None)[source]
+Export nodes of one or more namespaces to an XML file. Namespaces used by nodes are always exported for consistency. Args:
+
+server: opc ua server to use path: name of the xml file to write namespaces: list of string uris or int indexes of the namespace to export, if not provide all ns are used except 0
+Returns:
+
+find_servers(uris=None)[source]
+find_servers. mainly implemented for symmetry with client
+
+get_endpoints()[source]
+get_event_generator(etype=None, emitting_node=2253)[source]
+Returns an event object using an event type from address space. Use this object to fire events
+
+get_namespace_array()[source]
+get all namespace defined in server
+
+get_namespace_index(uri)[source]
+get index of a namespace using its uri
+
+get_node(nodeid)[source]
+Get a specific node using NodeId object or a string representing a NodeId
+
+get_objects_node()[source]
+Get Objects node of server. Returns a Node object.
+
+get_root_node()[source]
+Get Root node of server. Returns a Node object.
+
+get_server_node()[source]
+Get Server node of server. Returns a Node object.
+
+historize_node_data_change(node, period=datetime.timedelta(7), count=0)[source]
+Start historizing supplied nodes; see history module Args:
+
+node: node or list of nodes that can be historized (variables/properties) period: time delta to store the history; older data will be deleted from the storage count: number of changes to store in the history
+Returns:
+
+historize_node_event(node, period=datetime.timedelta(7), count=0)[source]
+Start historizing events from node (typically a UA object); see history module Args:
+
+node: node or list of nodes that can be historized (UA objects) period: time delta to store the history; older data will be deleted from the storage count: number of events to store in the history
+Returns:
+
+import_xml(path=None, xmlstring=None)[source]
+Import nodes defined in xml
+
+link_method(node, callback)[source]
+Link a python function to a UA method in the address space; required when a UA method has been imported to the address space via XML; the python executable must be linked manually Args:
+
+node: UA method node callback: python function that the UA method will call
+Returns:
+
+load_certificate(path)[source]
+load server certificate from file, either pem or der
+
+load_enums()[source]
+load UA structures and generate python Enums in ua module for custom enums in server
+
+load_private_key(path)[source]
+load_type_definitions(nodes=None)[source]
+load custom structures from our server. Server side this can be used to create python objects from custom structures imported through xml into server
+
+local_discovery_service
+register_namespace(uri)[source]
+Register a new namespace. Nodes should in custom namespace, not 0.
+
+set_application_uri(uri)[source]
+Set application/server URI. This uri is supposed to be unique. If you intent to register your server to a discovery server, it really should be unique in your system! default is : “urn:freeopcua:python:server”
+
+set_attribute_value(nodeid, datavalue, attr=<AttributeIds.Value: 13>)[source]
+directly write datavalue to the Attribute, bypasing some checks and structure creation so it is a little faster
+
+set_endpoint(url)[source]
+set_security_IDs(policyIDs)[source]
+Method setting up the security endpoints for identification of clients. During server object initialization, all possible endpoints are enabled:
+
+self._policyIDs = [“Anonymous”, “Basic256Sha256”, “Username”]
+
+E.g. to limit the number of IDs and disable anonymous clients:
+
+set_security_policy([“Basic256Sha256”])
+(Implementation for ID check is currently not finalized…)
+
+set_security_policy(security_policy)[source]
+Method setting up the security policies for connections to the server, where security_policy is a list of integers. During server initialization, all endpoints are enabled:
+
+security_policy = [
+ua.SecurityPolicyType.NoSecurity, ua.SecurityPolicyType.Basic256Sha256_SignAndEncrypt, ua.SecurityPolicyType.Basic256Sha256_Sign
+
+]
+E.g. to limit the number of endpoints and disable no encryption:
+
+set_security_policy([
+ua.SecurityPolicyType.Basic256Sha256_SignAndEncrypt])
+set_server_name(name)[source]
+start()[source]
+Start to listen on network
+
+stop()[source]
+Stop server
+
+subscribe_server_callback(event, handle)[source]
+unsubscribe_server_callback(event, handle)[source]
+classopcua.server.internal_server.InternalServer(shelffile=None, parent=None)[source]
+add_endpoint(endpoint)[source]
+create_session(name, user=<User.Anonymous: 1>, external=False)[source]
+disable_history_data_change(node)[source]
+Set attribute Historizing of node to False and stop storing data for history
+
+disable_history_event(source)[source]
+Set attribute History Read of node to False and stop storing data for history
+
+dump_address_space(path)[source]
+Dump current address space to path
+
+enable_history_data_change(node, period=datetime.timedelta(7), count=0)[source]
+Set attribute Historizing of node to True and start storing data for history
+
+enable_history_event(source, period=datetime.timedelta(7), count=0)[source]
+Set attribute History Read of object events to True and start storing data for history
+
+get_endpoints(params=None, sockname=None)[source]
+get_new_channel_id()[source]
+is_running()[source]
+load_address_space(path)[source]
+Load address space from path
+
+load_standard_address_space(shelffile=None)[source]
+local_discovery_service
+set_attribute_value(nodeid, datavalue, attr=<AttributeIds.Value: 13>)[source]
+directly write datavalue to the Attribute, bypasing some checks and structure creation so it is a little faster
+
+setup_nodes()[source]
+Set up some nodes as defined by spec
+
+start()[source]
+stop()[source]
+subscribe_server_callback(event, handle)[source]
+Create a subscription from event to handle
+
+thread_loop
+unsubscribe_server_callback(event, handle)[source]
+Remove a subscription from event to handle
+
+user_manager
+classopcua.server.internal_server.InternalSession(internal_server, aspace, submgr, name, user=<User.Anonymous: 1>, external=False)[source]
+activate_session(params)[source]
+add_method_callback(methodid, callback)[source]
+add_nodes(params)[source]
+add_references(params)[source]
+browse(params)[source]
+call(params)[source]
+close_session(delete_subs=True)[source]
+create_monitored_items(params)[source]
+create_session(params, sockname=None)[source]
+create_subscription(params, callback)[source]
+delete_monitored_items(params)[source]
+delete_nodes(params)[source]
+delete_references(params)[source]
+delete_subscriptions(ids)[source]
+get_endpoints(params=None, sockname=None)[source]
+history_read(params)[source]
+modify_monitored_items(params)[source]
+modify_subscription(params, callback)[source]
+publish(acks=None)[source]
+read(params)[source]
+republish(params)[source]
+translate_browsepaths_to_nodeids(params)[source]
+user_manager
+write(params)[source]
+classopcua.server.binary_server_asyncio.BinaryServer(internal_server, hostname, port)[source]
+set_loop(loop)[source]
+set_policies(policies)[source]
+start()[source]
+stop()[source]
